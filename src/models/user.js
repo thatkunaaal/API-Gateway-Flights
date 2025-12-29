@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 const validator = require("validator");
-const AppError = require("../utils/app-error");
+const AppError = require("../utils/errors/app-error");
 const { StatusCodes } = require("http-status-codes");
 
 module.exports = (sequelize, DataTypes) => {
