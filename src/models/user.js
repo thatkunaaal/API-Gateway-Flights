@@ -4,7 +4,7 @@ const validator = require("validator");
 const AppError = require("../utils/errors/app-error");
 const { StatusCodes } = require("http-status-codes");
 const bcrypt = require("bcrypt");
-const saltRounds = 10;
+const { ServerConfig } = require("../config");
 
 module.exports = (sequelize, DataTypes) => {
   class user extends Model {
@@ -70,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
 
     const hashedPassword = await bcrypt.hash(
       user.dataValues.password,
-      saltRounds
+      +ServerConfig.SALT_ROUNDS
     );
 
     user.dataValues.password = hashedPassword;

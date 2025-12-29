@@ -9,4 +9,6 @@ router.post(
   UserController.singup
 );
 
+router.post("/signin", UserController.signin);
+
 module.exports = router;

@@ -29,6 +29,25 @@ async function singup(req, res) {
   }
 }
 
+async function signin(req, res) {
+  try {
+    const user = await UserService.signin({
+      email: req.body.email,
+      password: req.body.password,
+    });
+
+    SuccessResponse.message = "Log-in successfull";
+    SuccessResponse.data = user;
+
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+
+    return res.status(error.StatusCodes).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   singup,
+  signin,
 };
