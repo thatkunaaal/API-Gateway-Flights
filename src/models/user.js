@@ -3,6 +3,8 @@ const { Model } = require("sequelize");
 const validator = require("validator");
 const AppError = require("../utils/errors/app-error");
 const { StatusCodes } = require("http-status-codes");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 module.exports = (sequelize, DataTypes) => {
   class user extends Model {
@@ -62,5 +64,17 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "user",
     }
   );
+
+  user.beforeCreate(async (user) => {
+    // console.log("Before creation: ", user.dataValues);
+
+    const hashedPassword = await bcrypt.hash(
+      user.dataValues.password,
+      saltRounds
+    );
+
+    user.dataValues.password = hashedPassword;
+    // console.log("After creation: ", user.dataValues);
+  });
   return user;
 };
