@@ -26,11 +26,13 @@ async function signin(data) {
   try {
     const { email, password } = data;
 
-    const user = await userRepo.getUser(email);
+    const response = await userRepo.getUser(email);
 
-    if (!user) {
+    if (!response) {
       throw new AppError("User not found", StatusCodes.BAD_REQUEST);
     }
+
+    const user = response.dataValues;
 
     const res = await AuthUtil.validatePassword(password, user.password);
 
@@ -38,8 +40,11 @@ async function signin(data) {
       throw new AppError("Invalid Password", StatusCodes.BAD_REQUEST);
     }
 
-    return true;
+    const jwt = await AuthUtil.generateJWT({ email: user.email, id: user.id });
+
+    return jwt;
   } catch (error) {
+    console.log(error);
     if (error instanceof AppError) {
       throw new AppError(error.message, error.StatusCodes);
     }

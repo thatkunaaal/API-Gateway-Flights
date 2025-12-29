@@ -31,13 +31,13 @@ async function singup(req, res) {
 
 async function signin(req, res) {
   try {
-    const user = await UserService.signin({
+    const jwt = await UserService.signin({
       email: req.body.email,
       password: req.body.password,
     });
 
     SuccessResponse.message = "Log-in successfull";
-    SuccessResponse.data = user;
+    SuccessResponse.data = jwt;
 
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
