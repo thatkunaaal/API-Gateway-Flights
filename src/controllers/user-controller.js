@@ -39,6 +39,10 @@ async function signin(req, res) {
     SuccessResponse.message = "Log-in successfull";
     SuccessResponse.data = jwt;
 
+    res.cookie("x_access_token", `Bearer ${jwt}`, {
+      expires: new Date(Date.now() + 3600000),
+      httpOnly: true,
+    });
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
     ErrorResponse.error = error;

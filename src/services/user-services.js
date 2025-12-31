@@ -56,7 +56,61 @@ async function signin(data) {
   }
 }
 
+async function checkUserById(data) {
+  try {
+    console.log(data);
+    const user = await userRepo.get(data);
+    return user;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError("User not found", error.StatusCodes);
+    }
+
+    throw new AppError(
+      "Something went wrong while checking user by ID",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+async function isAuthenticated(token) {
+  try {
+    if (!token) {
+      throw new AppError("Missing JWT token", StatusCodes.BAD_REQUEST);
+    }
+
+    const jwtToken = token.split(" ")[1];
+
+    const response = AuthUtil.verifyJwt(jwtToken);
+    if (!response) {
+      throw new AppError("Invalid token", StatusCodes.BAD_REQUEST);
+    }
+
+    const user = await userRepo.get(response.id);
+    if (!user) {
+      throw new AppError("User not found", StatusCodes.BAD_REQUEST);
+    }
+
+    return user;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+
+    if (error.name == "JsonWebTokenError") {
+      throw new AppError("Invalid token", StatusCodes.BAD_REQUEST);
+    }
+
+    if (error.name == "TokenExpiredError") {
+      throw new AppError("JWT token expired", StatusCodes.BAD_REQUEST);
+    }
+
+    console.log(error);
+    throw new AppError(error, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
 module.exports = {
   signup,
   signin,
+  checkUserById,
+  isAuthenticated,
 };

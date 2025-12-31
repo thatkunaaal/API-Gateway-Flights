@@ -49,7 +49,17 @@ async function generateJWT(payload) {
   }
 }
 
+function verifyJwt(token) {
+  try {
+    const payload = jwt.verify(token, ServerConfig.JWT_SECRET_KEY);
+    return payload;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   validatePassword,
   generateJWT,
+  verifyJwt,
 };

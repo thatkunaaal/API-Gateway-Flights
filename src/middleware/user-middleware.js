@@ -1,5 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
 const { ErrorResponse } = require("../utils/common");
+const { AuthUtil } = require("../utils/common");
+const AppError = require("../utils/errors/app-error");
+const { UserService } = require("../services");
 
 function validateSingupRequest(req, res, next) {
   if (!req.body) {
@@ -38,6 +41,35 @@ function validateSingupRequest(req, res, next) {
   next();
 }
 
+async function checkAuth(req, res, next) {
+  try {
+    const response = await UserService.isAuthenticated(
+      req.cookies["x_access_token"]
+    );
+
+    if (!response) {
+      throw new AppError(
+        "Authentication failed, Kindly re-login.",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    req.user = response;
+    next();
+  } catch (error) {
+    if (error instanceof AppError) {
+      ErrorResponse.error = error;
+
+      return res.status(error.StatusCodes).json(error);
+    }
+
+    ErrorResponse.error = error;
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   validateSingupRequest,
+  checkAuth,
 };
