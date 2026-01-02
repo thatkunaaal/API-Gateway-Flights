@@ -99,6 +99,12 @@ async function isAuthenticated(token) {
       throw new AppError("User not found", StatusCodes.BAD_REQUEST);
     }
 
+    const roleArr = await user.getRole();
+
+    const roles = roleArr.map((item) => item.dataValues.name);
+
+    user.dataValues.role = roles;
+
     return user;
   } catch (error) {
     if (error instanceof AppError) throw error;
@@ -156,6 +162,20 @@ async function isAdmin(data) {
   }
 }
 
+async function isFlightCompany(data) {
+  try {
+    const user = data;
+
+    const role = await roleRepo.getRoleByName(Enum.USER_ROLES.FLIGHT_COMPANY);
+
+    const result = await user.hasRole(role);
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   signup,
   signin,
@@ -163,4 +183,5 @@ module.exports = {
   isAuthenticated,
   addRoleToUser,
   isAdmin,
+  isFlightCompany,
 };

@@ -55,12 +55,14 @@ async function checkAuth(req, res, next) {
     }
 
     req.user = response;
+
+    console.log("API gateway: ", req.user);
     next();
   } catch (error) {
     if (error instanceof AppError) {
       ErrorResponse.error = error;
 
-      return res.status(error.StatusCodes).json(error);
+      return res.status(error.StatusCodes).json(ErrorResponse);
     }
 
     ErrorResponse.error = error;
@@ -69,7 +71,7 @@ async function checkAuth(req, res, next) {
   }
 }
 
-async function isAdmin(rq, res, next) {
+async function isAdmin(req, res, next) {
   const isAdmin = UserService.isAdmin(req.user);
 
   if (!isAdmin) {
@@ -81,8 +83,19 @@ async function isAdmin(rq, res, next) {
   next();
 }
 
+async function isFlightCompany(req, res, next) {
+  const isFlightCompany = await UserService.isFlightCompany(req.user);
+
+  if (!isFlightCompany) {
+    return res.status(StatusCodes.UNAUTHORIZED).json("Insufficient priviledge");
+  }
+
+  next();
+}
+
 module.exports = {
   validateSignupRequest,
   checkAuth,
   isAdmin,
+  isFlightCompany,
 };

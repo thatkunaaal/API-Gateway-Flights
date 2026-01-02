@@ -8,9 +8,10 @@ const { user } = require("./models");
 const app = express();
 const apiRoutes = require("./routes");
 const cookieParser = require("cookie-parser");
+const { UserMiddleware } = require("./middleware");
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 });
 
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(
 
 app.use(
   "/flightService",
+  UserMiddleware.checkAuth,
   createProxyMiddleware({
     target: ServerConfig.FLIGHT_SERVICE,
     changeOrigin: true,
