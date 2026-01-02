@@ -3,7 +3,7 @@ const { UserService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/common");
 const AppError = require("../utils/errors/app-error");
 
-async function singup(req, res) {
+async function signup(req, res) {
   try {
     const user = await UserService.signup({
       email: req.body.email,
@@ -22,7 +22,7 @@ async function singup(req, res) {
 
       return res.status(error.StatusCodes).json(ErrorResponse);
     }
-    console.log(error);
+    console.log("Controller Error", error);
     ErrorResponse.message = "Something went wrong while creating user";
     ErrorResponse.error = error;
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
@@ -51,7 +51,30 @@ async function signin(req, res) {
   }
 }
 
+async function addRoleToUser(req, res) {
+  try {
+
+    const userRole = await UserService.addRoleToUser({
+      id: req.body.id,
+      role: req.body.role,
+    });
+
+    SuccessResponse.data = userRole;
+
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+
+    if (error instanceof AppError) {
+      return res.status(error.StatusCodes).json(ErrorResponse);
+    }
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+  }
+}
+
 module.exports = {
-  singup,
+  signup,
   signin,
+  addRoleToUser,
 };

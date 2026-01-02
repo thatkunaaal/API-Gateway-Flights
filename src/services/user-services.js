@@ -3,10 +3,18 @@ const AppError = require("../utils/errors/app-error");
 const { StatusCodes } = require("http-status-codes");
 const userRepo = new UserRepository();
 const { AuthUtil } = require("../utils/common");
+const RoleRepository = require("../repositories/role-repository");
+const roleRepo = new RoleRepository();
+const { Enum } = require("../utils/common");
 
 async function signup(data) {
   try {
     const user = await userRepo.create(data);
+
+    const role = await roleRepo.getRoleByName(Enum.USER_ROLES.CUSTOMER);
+
+    await user.addRole(role);
+
     return user;
   } catch (error) {
     if (error.name === "SequelizeValidationError") {
@@ -108,9 +116,51 @@ async function isAuthenticated(token) {
   }
 }
 
+async function addRoleToUser(data) {
+  try {
+    const userResponse = await userRepo.get(data.id);
+
+    if (!userResponse) {
+      throw new AppError("User not found", StatusCodes.BAD_REQUEST);
+    }
+
+    const roleResponse = await roleRepo.getRoleByName(data.role);
+
+    if (!roleResponse) {
+      throw new AppError("Role not found", StatusCodes.BAD_REQUEST);
+    }
+
+    await userResponse.addRole(roleResponse);
+
+    return userResponse;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw new AppError(error.explanation, error.StatusCodes);
+    }
+
+    throw error;
+  }
+}
+
+async function isAdmin(data) {
+  try {
+    const user = data;
+
+    const role = await roleRepo.getRoleByName(Enum.USER_ROLES.ADMIN);
+
+    const result = await user.hasRole(role);
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   signup,
   signin,
   checkUserById,
   isAuthenticated,
+  addRoleToUser,
+  isAdmin,
 };

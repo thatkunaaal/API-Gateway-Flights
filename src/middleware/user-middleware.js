@@ -4,7 +4,7 @@ const { AuthUtil } = require("../utils/common");
 const AppError = require("../utils/errors/app-error");
 const { UserService } = require("../services");
 
-function validateSingupRequest(req, res, next) {
+function validateSignupRequest(req, res, next) {
   if (!req.body) {
     ErrorResponse.error = {
       explanation:
@@ -69,7 +69,20 @@ async function checkAuth(req, res, next) {
   }
 }
 
+async function isAdmin(rq, res, next) {
+  const isAdmin = UserService.isAdmin(req.user);
+
+  if (!isAdmin) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json("Insufficient Priviledege");
+  }
+
+  next();
+}
+
 module.exports = {
-  validateSingupRequest,
+  validateSignupRequest,
   checkAuth,
+  isAdmin,
 };

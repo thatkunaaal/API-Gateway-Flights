@@ -3,6 +3,8 @@ const { ServerConfig } = require("./config");
 const { rateLimit } = require("express-rate-limit");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
+const { user } = require("./models");
+
 const app = express();
 const apiRoutes = require("./routes");
 const cookieParser = require("cookie-parser");
@@ -17,13 +19,23 @@ app.use(cookieParser());
 app.use(limiter);
 
 app.use(
-  "/bookingsService",
+  "/bookingService",
   createProxyMiddleware({
-    target: "http://localhost:4000",
+    target: ServerConfig.BOOKING_SERVICE,
     changeOrigin: true,
-    pathRewrite: { "^/bookingsService": "/" },
+    pathRewrite: { "^/bookingService": "/" },
   })
 );
+
+app.use(
+  "/flightService",
+  createProxyMiddleware({
+    target: ServerConfig.FLIGHT_SERVICE,
+    changeOrigin: true,
+    pathRewrite: { "^/flightService": "/" },
+  })
+);
+
 app.use("/api", apiRoutes);
 
 app.listen(ServerConfig.PORT, () => {

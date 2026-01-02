@@ -5,10 +5,12 @@ const { UserMiddleware } = require("../../middleware");
 
 router.post(
   "/signup",
-  UserMiddleware.validateSingupRequest,
-  UserController.singup
+  UserMiddleware.validateSignupRequest,
+  UserController.signup
 );
 
 router.post("/signin", UserController.signin);
+
+router.post("/role", UserMiddleware.checkAuth, UserController.addRoleToUser);
 
 module.exports = router;
