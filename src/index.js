@@ -35,6 +35,11 @@ app.use(
     target: ServerConfig.FLIGHT_SERVICE,
     changeOrigin: true,
     pathRewrite: { "^/flightService": "/" },
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+        proxyReq.setHeader("user", JSON.stringify(req.user.dataValues));
+      },
+    },
   })
 );
 

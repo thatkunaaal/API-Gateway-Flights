@@ -56,7 +56,6 @@ async function checkAuth(req, res, next) {
 
     req.user = response;
 
-    console.log("API gateway: ", req.user);
     next();
   } catch (error) {
     if (error instanceof AppError) {
